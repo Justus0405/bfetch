@@ -8,7 +8,7 @@ bash
 
 # Installation
 
-- To install bfetch and casually let it drop itself into /usr/bin (like it owns the place), use this one-liner script:
+**To install bfetch and casually let it drop itself into /usr/bin (like it owns the place), use this one-liner script:**
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/harilvfs/bfetch/main/install.sh)
