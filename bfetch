@@ -20,41 +20,35 @@ OS() {
 	USER=$(whoami)
 	KERNEL=$(uname -r)
 	UPTIME=$(uptime -p)
-	# Reads the age of the file machine-id to determine the OS age
+	# Calculate system age based on /etc/machine-id creation date
 	if [[ -f "/etc/machine-id" ]]; then
 		AGE=$((($(date +%s) - $(date -r "/etc/machine-id" +%s)) / 86400))
 	else
 		AGE="Error: File not found"
 	fi
 
-	echo -e "\t│   ${RED}User${ENDCOLOR}      │ ${USER}"
-	echo -e "\t│   ${YELLOW}Kernel${ENDCOLOR}    │ ${KERNEL}"
-	echo -e "\t│   ${BLUE}Uptime${ENDCOLOR}    │ ${UPTIME}"
-	echo -e "\t│   ${GREEN}Age${ENDCOLOR}       │ ${AGE} days"
+	echo -e "\t│  ${RED} User${ENDCOLOR}     │ ${USER}"
+	echo -e "\t│  ${YELLOW} Kernel${ENDCOLOR}   │ ${KERNEL}"
+	echo -e "\t│  ${BLUE} Uptime${ENDCOLOR}   │ ${UPTIME}"
+	echo -e "\t│  ${GREEN} Age${ENDCOLOR}      │ ${AGE} days"
 	echo -e "\t├─────────────┤"
 }
 
 USAGE() {
-	# Show ram usage in mb, cut everything except line 2, calculate used percentage
 	ram_usage=$(free -m | awk 'NR==2{used=$3; total=$2; avail=$7; printf "%dmb / %dmb (%.0f%%), available: %dmb\n", used, total, used/total*100, avail}')
-
-	# Show total disk usage in gb, only use line total , print values
 	disk_usage=$(df -h --total | awk '/total/ {printf "%s / %s (%s), available: %s\n", $3, $2, $5, $4}')
 
-	echo -e "\t│   ${MAGENTA}Ram${ENDCOLOR}       │ ${ram_usage}"
-	echo -e "\t│   ${CYAN}Disk${ENDCOLOR}      │ ${disk_usage}"
+	echo -e "\t│  ${MAGENTA} RAM${ENDCOLOR}      │ ${ram_usage}"
+	echo -e "\t│  ${CYAN} Disk${ENDCOLOR}     │ ${disk_usage}"
 	echo -e "\t├─────────────┤"
 }
 
 NETWORK() {
-	# Tries to ping google dns server, if successful return Online, if not return Offline
-	online_status=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${GREEN}Online${ENDCOLOR}"; else echo -e "${RED}Offline${ENDCOLOR}"; fi)
-
-	# Show every IPv4 adress, filter only for the numbers, remove loopback adress, show remaining adress
+	online_status=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${GREEN} Online${ENDCOLOR}"; else echo -e "${RED} Offline${ENDCOLOR}"; fi)
 	local_ip=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
 
-	echo -e "\t│   ${RED}Internet${ENDCOLOR}  │ ${online_status}"
-	echo -e "\t│   ${MAGENTA}Local IP${ENDCOLOR}  │ ${local_ip}"
+	echo -e "\t│  ${RED} Internet${ENDCOLOR} │ ${online_status}"
+	echo -e "\t│  ${MAGENTA} Local IP${ENDCOLOR} │ ${local_ip:-N/A}"
 	echo -e "\t├─────────────┤"
 }
 
@@ -64,56 +58,26 @@ BOTTOM_BAR() {
 	echo -e ""
 }
 
-# Function to find temperature file paths
-FIND_TEMP_PATH() {
-	local potential_paths=("$@")
-	for path in "${potential_paths[@]}"; do
-		if [ -f "$path" ] && [ -s "$path" ]; then
-			echo "$path"
-			return 0
-		fi
-	done
-	echo ""
-}
-
 TEMPS() {
 	echo -e ""
 	echo -e "\t> Temperatures"
-	potential_paths_zone0=(
-		"/sys/class/thermal/thermal_zone0/temp"
-		"/sys/class/hwmon/hwmon0/temp1_input"
-		"/sys/class/hwmon/hwmon1/temp1_input"
-	)
-	potential_paths_zone1=(
-		"/sys/class/thermal/thermal_zone1/temp"
-		"/sys/class/hwmon/hwmon0/temp2_input"
-		"/sys/class/hwmon/hwmon1/temp2_input"
-	)
+	temp0_path="/sys/class/thermal/thermal_zone0/temp"
+	temp1_path="/sys/class/thermal/thermal_zone1/temp"
 
-	thermal_zone0_path=$(FIND_TEMP_PATH "${potential_paths_zone0[@]}")
-	thermal_zone1_path=$(FIND_TEMP_PATH "${potential_paths_zone1[@]}")
-
-	if [[ -n "${thermal_zone0_path}" ]]; then
-		temp0=$(cat "${thermal_zone0_path}" 2>/dev/null)
-		if [[ ${temp0} =~ ^[0-9]+$ ]]; then
-			thermal_zone0=$(cat /sys/class/thermal/thermal_zone0/type 2>/dev/null || echo "Zone 0")
-			thermal_zone0_temp=$((temp0 / 1000))
-			echo -e "\t${RED}${thermal_zone0}${ENDCOLOR}: ${CYAN}${thermal_zone0_temp}°C${ENDCOLOR}"
-		fi
+	if [[ -f "$temp0_path" ]]; then
+		temp0=$(cat "$temp0_path")
+		temp0_c=$((temp0 / 1000))
+		echo -e "\t${RED} CPU Temp${ENDCOLOR}: ${CYAN}${temp0_c}°C${ENDCOLOR}"
 	fi
 
-	if [[ -n "${thermal_zone1_path}" ]]; then
-		temp1=$(cat "${thermal_zone1_path}" 2>/dev/null)
-		if [[ ${temp1} =~ ^[0-9]+$ ]]; then
-			thermal_zone1=$(cat /sys/class/thermal/thermal_zone1/type 2>/dev/null || echo "Zone 1")
-			thermal_zone1_temp=$((temp1 / 1000))
-			echo -e "\t${RED}${thermal_zone1}${ENDCOLOR}: ${CYAN}${thermal_zone1_temp}°C${ENDCOLOR}"
-		fi
+	if [[ -f "$temp1_path" ]]; then
+		temp1=$(cat "$temp1_path")
+		temp1_c=$((temp1 / 1000))
+		echo -e "\t${RED} Other Temp${ENDCOLOR}: ${CYAN}${temp1_c}°C${ENDCOLOR}"
 	fi
 
-	if [[ -z "${thermal_zone0_path}" ]] && [[ -z "${thermal_zone1_path}" ]]; then
-		echo -e "\t${RED}Error:${ENDCOLOR} No valid temperature sensor found"
-		exit 1
+	if [[ ! -f "$temp0_path" && ! -f "$temp1_path" ]]; then
+		echo -e "\t${RED} Error:${ENDCOLOR} No valid temperature sensor found"
 	fi
 
 	echo -e ""
@@ -123,9 +87,9 @@ case $1 in
 "-h" | "--help")
 	echo -e "usage:  $0 [...]"
 	echo -e "arguments:"
-	echo -e "    -h | --help"
-	echo -e "    -t | --temps"
-	echo -e "    -s | --system"
+	echo -e "    -h | --help     Show this help message"
+	echo -e "    -t | --temps    Show temperatures"
+	echo -e "    -s | --system   Show system information (default)"
 	echo -e ""
 	exit 0
 	;;
@@ -146,3 +110,4 @@ case $1 in
 	exit 1
 	;;
 esac
+

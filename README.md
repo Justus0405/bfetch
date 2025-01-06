@@ -6,13 +6,14 @@ Another System information script for Linux written in bash
 bash
 ```
 
-## Installation
-```shell
-git clone https://github.com/Justus0405/bfetch.git
-cd bfetch
-chmod +x bfetch
-./bfetch
+# Installation
+
+- To install bfetch and casually let it drop itself into /usr/bin (like it owns the place), use this one-liner script:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/harilvfs/bfetch/main/install.sh)
 ```
+
 ## Usage
 ```plaintext
     usage:  bfetch [...]
