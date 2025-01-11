@@ -74,7 +74,7 @@ SYSTEM() {
 	echo -e "\t│ 󰖩  ${YELLOW}Internet${ENDCOLOR} │ ${online_status}"
 	echo -e "\t│ 󰈀  ${GREEN}Local IP${ENDCOLOR} │ ${local_ip}"
 	echo -e "\t├─────────────┤"
-	echo -e "\t│ 󰏘  colors   │ ${WHITE}󰄯 ${RED}󰄯 ${YELLOW}󰄯 ${GREEN}󰄯 ${CYAN}󰄯 ${BLUE}󰄯 ${MAGENTA}󰄯 ${BLACK}󰄯 ${ENDCOLOR}"
+	echo -e "\t│ 󰏘  colors   │ ${WHITE} ${RED} ${YELLOW} ${GREEN} ${CYAN} ${BLUE} ${MAGENTA} ${BLACK} ${ENDCOLOR}"
 	echo -e "\t╰─────────────╯"
 	echo -e ""
 }
