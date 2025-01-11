@@ -11,13 +11,17 @@ CYAN="\e[36m"
 WHITE="\e[97m"
 ENDCOLOR="\e[0m"
 
-TOP_BAR() {
-	echo -e ""
-	echo -e "\t╭─────────────╮"
-}
+#########################
+# FETCH STUFF
+#########################
+SYSTEM() {
 
-OS() {
+	#########################
+	# OPERATING SYSTEM INFO
+	#########################
+
 	USER=$(whoami)
+	HOSTNAME=$(cat /etc/hostname)
 	KERNEL=$(uname -r)
 	UPTIME=$(uptime -p)
 	# Reads the age of the file machine-id to determine the OS age
@@ -27,42 +31,57 @@ OS() {
 		AGE="Error: File not found"
 	fi
 
-	echo -e "\t│   ${RED}User${ENDCOLOR}      │ ${USER}"
-	echo -e "\t│   ${YELLOW}Kernel${ENDCOLOR}    │ ${KERNEL}"
-	echo -e "\t│   ${BLUE}Uptime${ENDCOLOR}    │ ${UPTIME}"
-	echo -e "\t│   ${GREEN}Age${ENDCOLOR}       │ ${AGE} days"
-	echo -e "\t├─────────────┤"
-}
+	#########################
+	# USAGE INFO
+	#########################
 
-USAGE() {
 	# Show ram usage in mb, cut everything except line 2, calculate used percentage
-	ram_usage=$(free -m | awk 'NR==2{used=$3; total=$2; avail=$7; printf "%dmb / %dmb (%.0f%%), available: %dmb\n", used, total, used/total*100, avail}')
+	ram_usage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
+
+	# OLD FUNCTION
+	#ram_usage=$(free -m | awk 'NR==2{used=$3; total=$2; avail=$7; printf "%dmb / %dmb (%.0f%%), available: %dmb\n", used, total, used/total*100, avail}')
 
 	# Show total disk usage in gb, only use line total , print values
-	disk_usage=$(df -h --total | awk '/total/ {printf "%s / %s (%s), available: %s\n", $3, $2, $5, $4}')
+	disk_usage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
 
-	echo -e "\t│   ${MAGENTA}Ram${ENDCOLOR}       │ ${ram_usage}"
-	echo -e "\t│   ${CYAN}Disk${ENDCOLOR}      │ ${disk_usage}"
-	echo -e "\t├─────────────┤"
-}
+	# OLD FUNCTION
+	#disk_usage=$(df -h --total | awk '/total/ {printf "%s / %s (%s), available: %s\n", $3, $2, $5, $4}')
 
-NETWORK() {
+	#########################
+	# NETWORK INFO
+	#########################
+
 	# Tries to ping google dns server, if successful return Online, if not return Offline
 	online_status=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${GREEN}Online${ENDCOLOR}"; else echo -e "${RED}Offline${ENDCOLOR}"; fi)
 
 	# Show every IPv4 adress, filter only for the numbers, remove loopback adress, show remaining adress
 	local_ip=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
 
-	echo -e "\t│   ${RED}Internet${ENDCOLOR}  │ ${online_status}"
-	echo -e "\t│   ${MAGENTA}Local IP${ENDCOLOR}  │ ${local_ip}"
-	echo -e "\t├─────────────┤"
-}
+	#########################
+	# SYSTEM INFO START
+	#########################
 
-BOTTOM_BAR() {
-	echo -e "\t│   colors    │  ${WHITE} ${RED} ${YELLOW} ${GREEN} ${CYAN} ${BLUE} ${MAGENTA} ${BLACK}${ENDCOLOR}"
+	echo -e ""
+	echo -e "\t╭─────────────╮"
+	echo -e "\t│ 󰀄  ${RED}User${ENDCOLOR}     │ ${USER}"
+	echo -e "\t│ 󰌽  ${YELLOW}Kernel${ENDCOLOR}   │ ${KERNEL}"
+	echo -e "\t│ 󰥔  ${GREEN}Uptime${ENDCOLOR}   │ ${UPTIME}"
+	echo -e "\t│ 󰃭  ${CYAN}Age${ENDCOLOR}      │ ${AGE} days"
+	echo -e "\t│ 󰘚  ${BLUE}Ram${ENDCOLOR}      │ ${ram_usage}"
+	echo -e "\t│ 󰋊  ${MAGENTA}Disk${ENDCOLOR}     │ ${disk_usage}"
+	echo -e "\t├─────────────┤"
+	echo -e "\t│ 󱄙  ${RED}Hostname${ENDCOLOR} │ ${HOSTNAME}"
+	echo -e "\t│ 󰖩  ${YELLOW}Internet${ENDCOLOR} │ ${online_status}"
+	echo -e "\t│ 󰈀  ${GREEN}Local IP${ENDCOLOR} │ ${local_ip}"
+	echo -e "\t├─────────────┤"
+	echo -e "\t│ 󰏘  colors   │ ${WHITE}󰄯 ${RED}󰄯 ${YELLOW}󰄯 ${GREEN}󰄯 ${CYAN}󰄯 ${BLUE}󰄯 ${MAGENTA}󰄯 ${BLACK}󰄯 ${ENDCOLOR}"
 	echo -e "\t╰─────────────╯"
 	echo -e ""
 }
+
+#########################
+# TEMPERATURE STUFF
+#########################
 
 # Function to find temperature file paths
 FIND_TEMP_PATH() {
@@ -119,6 +138,10 @@ TEMPS() {
 	echo -e ""
 }
 
+#########################
+# INPUT HANDLING
+#########################
+
 case $1 in
 "-h" | "--help")
 	echo -e "usage:  $0 [...]"
@@ -134,11 +157,7 @@ case $1 in
 	exit 0
 	;;
 "-s" | "--system" | "")
-	TOP_BAR
-	OS
-	USAGE
-	NETWORK
-	BOTTOM_BAR
+	SYSTEM
 	exit 0
 	;;
 *)

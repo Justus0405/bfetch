@@ -1,10 +1,9 @@
 # bfetch
 Another System information script for Linux written in bash
 
-## Dependencies
-```plaintext
-bash
-```
+> [!INFO]
+> You need to have some kind of NerdFont installed
+> for the symbols to display properly!
 
 ## Installation
 ```shell
