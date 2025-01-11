@@ -1,7 +1,7 @@
 # bfetch
 Another System information script for Linux written in bash
 
-> [!INFO]
+> [!NOTE]
 > You need to have some kind of NerdFont installed
 > for the symbols to display properly!
 
