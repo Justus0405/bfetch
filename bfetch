@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # Color Variables
-BLACK="\e[30m"
-RED="\e[31m"
-GREEN="\e[32m"
-YELLOW="\e[33m"
-BLUE="\e[34m"
-MAGENTA="\e[35m"
-CYAN="\e[36m"
-WHITE="\e[97m"
-ENDCOLOR="\e[0m"
+black="\e[30m"
+red="\e[31m"
+green="\e[32m"
+yellow="\e[33m"
+blue="\e[34m"
+magenta="\e[35m"
+cyan="\e[36m"
+white="\e[97m"
+endColor="\e[0m"
 
 #########################
-# INPUT HANDLING
+# Input Handling
 #########################
-check_args() {
+checkArgs() {
 	case $1 in
 	"-s" | "--system")
 		system
@@ -23,88 +23,88 @@ check_args() {
 		temps
 		;;
 	"-h" | "--help")
-		show_help
+		showHelp
 		;;
 	"")
 		system
 		;;
 	*)
-		echo -e "${ERROR} unrecognized option '$1'. Use $0 -h or --help"
+		echo -e "Error: unrecognized option '$1'. Use $0 -h or --help"
 		exit 1
 		;;
 	esac
 }
 
 #########################
-# FETCH STUFF
+# Fetch Stuff
 #########################
 system() {
 
 	#########################
-	# OPERATING SYSTEM INFO
+	# Operating System Info
 	#########################
 
-	show_user=$(whoami)
-	show_hostname=$(cat /etc/hostname)
-	show_kernel=$(uname -r)
-	show_uptime=$(uptime -p | sed 's/up //')
+	showUser=$(whoami)
+	showHostname=$(cat /etc/hostname)
+	showKernel=$(uname -r)
+	showUptime=$(uptime -p | sed 's/up //')
 	# Reads the age of the file machine-id to determine the OS age
 	if [[ -f "/etc/machine-id" ]]; then
-		show_age=$((($(date +%s) - $(date -r "/etc/machine-id" +%s)) / 86400))
+		showAge=$((($(date +%s) - $(date -r "/etc/machine-id" +%s)) / 86400))
 	else
-		show_age="Error: File not found"
+		showAge="Error: File not found"
 	fi
 
 	#########################
-	# USAGE INFO
+	# Usage Info
 	#########################
 
 	# Show ram usage in mb, cut everything except line 2, calculate used percentage
-	show_ram_usage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
+	showRamUsage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
 
 	# Show total disk usage in gb, only use line total , print values
-	show_disk_usage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
+	showDiskUsage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
 
 	#########################
-	# NETWORK INFO
+	# Network Info
 	#########################
 
 	# Tries to ping google dns server, if successful return Online, if not return Offline
-	show_online_status=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${GREEN}Online${ENDCOLOR}"; else echo -e "${RED}Offline${ENDCOLOR}"; fi)
+	showOnlineStatus=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${green}Online${endColor}"; else echo -e "${red}Offline${endColor}"; fi)
 
 	# Show every IPv4 adress, filter only for the numbers, remove loopback adress, show remaining adress
-	show_local_ip=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
+	showLocalIp=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
 
 	#########################
-	# SYSTEM INFO START
+	# System Info Start
 	#########################
 
 	echo -e ""
 	echo -e "\t╭─────────────╮"
-	echo -e "\t│ 󰀄  ${RED}User${ENDCOLOR}     │ ${show_user}"
-	echo -e "\t│ 󰌽  ${YELLOW}Kernel${ENDCOLOR}   │ ${show_kernel}"
-	echo -e "\t│ 󰥔  ${GREEN}Uptime${ENDCOLOR}   │ ${show_uptime}"
-	echo -e "\t│ 󰃭  ${CYAN}Age${ENDCOLOR}      │ ${show_age} days"
-	echo -e "\t│ 󰘚  ${BLUE}Ram${ENDCOLOR}      │ ${show_ram_usage}"
-	echo -e "\t│ 󰋊  ${MAGENTA}Disk${ENDCOLOR}     │ ${show_disk_usage}"
+	echo -e "\t│ 󰀄  ${red}User${endColor}     │ ${showUser}"
+	echo -e "\t│ 󰌽  ${yellow}Kernel${endColor}   │ ${showKernel}"
+	echo -e "\t│ 󰥔  ${green}Uptime${endColor}   │ ${showUptime}"
+	echo -e "\t│ 󰃭  ${cyan}Age${endColor}      │ ${showAge} days"
+	echo -e "\t│ 󰘚  ${blue}Ram${endColor}      │ ${showRamUsage}"
+	echo -e "\t│ 󰋊  ${magenta}Disk${endColor}     │ ${showDiskUsage}"
 	echo -e "\t├─────────────┤"
-	echo -e "\t│ 󱄙  ${RED}Hostname${ENDCOLOR} │ ${show_hostname}"
-	echo -e "\t│ 󰖩  ${YELLOW}Internet${ENDCOLOR} │ ${show_online_status}"
-	echo -e "\t│ 󰈀  ${GREEN}Local IP${ENDCOLOR} │ ${show_local_ip}"
+	echo -e "\t│ 󱄙  ${red}Hostname${endColor} │ ${showHostname}"
+	echo -e "\t│ 󰖩  ${yellow}Internet${endColor} │ ${showOnlineStatus}"
+	echo -e "\t│ 󰈀  ${green}Local IP${endColor} │ ${showLocalIp}"
 	echo -e "\t├─────────────┤"
-	echo -e "\t│ 󰏘  colors   │ ${WHITE} ${RED} ${YELLOW} ${GREEN} ${CYAN} ${BLUE} ${MAGENTA} ${BLACK} ${ENDCOLOR}"
+	echo -e "\t│ 󰏘  colors   │ ${white} ${red} ${yellow} ${green} ${cyan} ${blue} ${magenta} ${black} ${endColor}"
 	echo -e "\t╰─────────────╯"
 	echo -e ""
 }
 
 #########################
-# TEMPERATURE STUFF
+# Temperature Stuff
 #########################
 
 # Function to find temperature file paths
-find_temp_path() {
-	local potential_paths=("$@")
-	for path in "${potential_paths[@]}"; do
+findTempPath() {
+	local potentialPaths=("$@")
+	for path in "${potentialPaths[@]}"; do
 		if [ -f "$path" ] && [ -s "$path" ]; then
 			echo "$path"
 			return 0
@@ -116,47 +116,47 @@ find_temp_path() {
 temps() {
 	echo -e ""
 	echo -e "\t> Temperatures"
-	potential_paths_zone0=(
+	potentialPathsZone0=(
 		"/sys/class/thermal/thermal_zone0/temp"
 		"/sys/class/hwmon/hwmon0/temp1_input"
 		"/sys/class/hwmon/hwmon1/temp1_input"
 	)
-	potential_paths_zone1=(
+	potentialPathsZone1=(
 		"/sys/class/thermal/thermal_zone1/temp"
 		"/sys/class/hwmon/hwmon0/temp2_input"
 		"/sys/class/hwmon/hwmon1/temp2_input"
 	)
 
-	thermal_zone0_path=$(find_temp_path "${potential_paths_zone0[@]}")
-	thermal_zone1_path=$(find_temp_path "${potential_paths_zone1[@]}")
+	thermalZone0Path=$(findTempPath "${potentialPathsZone0[@]}")
+	thermalZone1Path=$(findTempPath "${potentialPathsZone1[@]}")
 
-	if [[ -n "${thermal_zone0_path}" ]]; then
-		temp0=$(cat "${thermal_zone0_path}" 2>/dev/null)
+	if [[ -n "${thermalZone0Path}" ]]; then
+		temp0=$(cat "${thermalZone0Path}" 2>/dev/null)
 		if [[ ${temp0} =~ ^[0-9]+$ ]]; then
-			thermal_zone0=$(cat /sys/class/thermal/thermal_zone0/type 2>/dev/null || echo "Zone 0")
-			thermal_zone0_temp=$((temp0 / 1000))
-			echo -e "\t${RED}${thermal_zone0}${ENDCOLOR}: ${CYAN}${thermal_zone0_temp}°C${ENDCOLOR}"
+			thermalZone0=$(cat /sys/class/thermal/thermal_zone0/type 2>/dev/null || echo "Zone 0")
+			thermalZone0Temp=$((temp0 / 1000))
+			echo -e "\t${red}${thermalZone0}${endColor}: ${cyan}${thermalZone0Temp}°C${endColor}"
 		fi
 	fi
 
-	if [[ -n "${thermal_zone1_path}" ]]; then
-		temp1=$(cat "${thermal_zone1_path}" 2>/dev/null)
+	if [[ -n "${thermalZone1Path}" ]]; then
+		temp1=$(cat "${thermalZone1Path}" 2>/dev/null)
 		if [[ ${temp1} =~ ^[0-9]+$ ]]; then
-			thermal_zone1=$(cat /sys/class/thermal/thermal_zone1/type 2>/dev/null || echo "Zone 1")
-			thermal_zone1_temp=$((temp1 / 1000))
-			echo -e "\t${RED}${thermal_zone1}${ENDCOLOR}: ${CYAN}${thermal_zone1_temp}°C${ENDCOLOR}"
+			thermalZone1=$(cat /sys/class/thermal/thermal_zone1/type 2>/dev/null || echo "Zone 1")
+			thermalZone1Temp=$((temp1 / 1000))
+			echo -e "\t${red}${thermalZone1}${endColor}: ${cyan}${thermalZone1Temp}°C${endColor}"
 		fi
 	fi
 
-	if [[ -z "${thermal_zone0_path}" ]] && [[ -z "${thermal_zone1_path}" ]]; then
-		echo -e "\t${RED}Error:${ENDCOLOR} No valid temperature sensor found"
+	if [[ -z "${thermalZone0Path}" ]] && [[ -z "${thermalZone1Path}" ]]; then
+		echo -e "\t${red}Error:${endColor} No valid temperature sensor found"
 		exit 1
 	fi
 
 	echo -e ""
 }
 
-show_help() {
+showHelp() {
 	echo -e "usage: $0 [...]"
 	echo -e "arguments:"
 	echo -e "    -s | --system"
@@ -167,7 +167,7 @@ show_help() {
 }
 
 #########################
-# PROGRAM START
+# Program Start
 #########################
 
-check_args "$@"
+checkArgs "$@"
