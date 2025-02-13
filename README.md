@@ -37,9 +37,9 @@ Another System information script for Linux written in bash
 ```plaintext
     usage: bfetch [...]
     arguments:
-        -h | --help
-        -t | --temps
         -s | --system
+        -t | --temps
+        -h | --help
 
 ```
 

@@ -12,9 +12,33 @@ WHITE="\e[97m"
 ENDCOLOR="\e[0m"
 
 #########################
+# INPUT HANDLING
+#########################
+check_args() {
+	case $1 in
+	"-s" | "--system")
+		system
+		;;
+	"-t" | "--temps")
+		temps
+		;;
+	"-h" | "--help")
+		show_help
+		;;
+	"")
+		system
+		;;
+	*)
+		echo -e "${ERROR} unrecognized option '$1'. Use $0 -h or --help"
+		exit 1
+		;;
+	esac
+}
+
+#########################
 # FETCH STUFF
 #########################
-SYSTEM() {
+system() {
 
 	#########################
 	# OPERATING SYSTEM INFO
@@ -78,7 +102,7 @@ SYSTEM() {
 #########################
 
 # Function to find temperature file paths
-FIND_TEMP_PATH() {
+find_temp_path() {
 	local potential_paths=("$@")
 	for path in "${potential_paths[@]}"; do
 		if [ -f "$path" ] && [ -s "$path" ]; then
@@ -89,7 +113,7 @@ FIND_TEMP_PATH() {
 	echo ""
 }
 
-TEMPS() {
+temps() {
 	echo -e ""
 	echo -e "\t> Temperatures"
 	potential_paths_zone0=(
@@ -103,8 +127,8 @@ TEMPS() {
 		"/sys/class/hwmon/hwmon1/temp2_input"
 	)
 
-	thermal_zone0_path=$(FIND_TEMP_PATH "${potential_paths_zone0[@]}")
-	thermal_zone1_path=$(FIND_TEMP_PATH "${potential_paths_zone1[@]}")
+	thermal_zone0_path=$(find_temp_path "${potential_paths_zone0[@]}")
+	thermal_zone1_path=$(find_temp_path "${potential_paths_zone1[@]}")
 
 	if [[ -n "${thermal_zone0_path}" ]]; then
 		temp0=$(cat "${thermal_zone0_path}" 2>/dev/null)
@@ -132,30 +156,18 @@ TEMPS() {
 	echo -e ""
 }
 
-#########################
-# INPUT HANDLING
-#########################
-
-case $1 in
-"-h" | "--help")
+show_help() {
 	echo -e "usage: $0 [...]"
 	echo -e "arguments:"
-	echo -e "    -h | --help"
-	echo -e "    -t | --temps"
 	echo -e "    -s | --system"
+	echo -e "    -t | --temps"
+	echo -e "    -h | --help"
 	echo -e ""
 	exit 0
-	;;
-"-t" | "--temps")
-	TEMPS
-	exit 0
-	;;
-"-s" | "--system" | "")
-	SYSTEM
-	exit 0
-	;;
-*)
-	echo -e "${RED}Error:${ENDCOLOR} unrecognized option '$1'. use -h"
-	exit 1
-	;;
-esac
+}
+
+#########################
+# PROGRAM START
+#########################
+
+check_args "$@"
