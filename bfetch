@@ -20,15 +20,15 @@ SYSTEM() {
 	# OPERATING SYSTEM INFO
 	#########################
 
-	USER=$(whoami)
-	HOSTNAME=$(cat /etc/hostname)
-	KERNEL=$(uname -r)
-	UPTIME=$(uptime -p)
+	show_user=$(whoami)
+	show_hostname=$(cat /etc/hostname)
+	show_kernel=$(uname -r)
+	show_uptime=$(uptime -p | sed 's/up //')
 	# Reads the age of the file machine-id to determine the OS age
 	if [[ -f "/etc/machine-id" ]]; then
-		AGE=$((($(date +%s) - $(date -r "/etc/machine-id" +%s)) / 86400))
+		show_age=$((($(date +%s) - $(date -r "/etc/machine-id" +%s)) / 86400))
 	else
-		AGE="Error: File not found"
+		show_age="Error: File not found"
 	fi
 
 	#########################
@@ -36,26 +36,20 @@ SYSTEM() {
 	#########################
 
 	# Show ram usage in mb, cut everything except line 2, calculate used percentage
-	ram_usage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
-
-	# OLD FUNCTION
-	#ram_usage=$(free -m | awk 'NR==2{used=$3; total=$2; avail=$7; printf "%dmb / %dmb (%.0f%%), available: %dmb\n", used, total, used/total*100, avail}')
+	show_ram_usage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
 
 	# Show total disk usage in gb, only use line total , print values
-	disk_usage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
-
-	# OLD FUNCTION
-	#disk_usage=$(df -h --total | awk '/total/ {printf "%s / %s (%s), available: %s\n", $3, $2, $5, $4}')
+	show_disk_usage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
 
 	#########################
 	# NETWORK INFO
 	#########################
 
 	# Tries to ping google dns server, if successful return Online, if not return Offline
-	online_status=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${GREEN}Online${ENDCOLOR}"; else echo -e "${RED}Offline${ENDCOLOR}"; fi)
+	show_online_status=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${GREEN}Online${ENDCOLOR}"; else echo -e "${RED}Offline${ENDCOLOR}"; fi)
 
 	# Show every IPv4 adress, filter only for the numbers, remove loopback adress, show remaining adress
-	local_ip=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
+	show_local_ip=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
 
 	#########################
 	# SYSTEM INFO START
@@ -63,16 +57,16 @@ SYSTEM() {
 
 	echo -e ""
 	echo -e "\t╭─────────────╮"
-	echo -e "\t│ 󰀄  ${RED}User${ENDCOLOR}     │ ${USER}"
-	echo -e "\t│ 󰌽  ${YELLOW}Kernel${ENDCOLOR}   │ ${KERNEL}"
-	echo -e "\t│ 󰥔  ${GREEN}Uptime${ENDCOLOR}   │ ${UPTIME}"
-	echo -e "\t│ 󰃭  ${CYAN}Age${ENDCOLOR}      │ ${AGE} days"
-	echo -e "\t│ 󰘚  ${BLUE}Ram${ENDCOLOR}      │ ${ram_usage}"
-	echo -e "\t│ 󰋊  ${MAGENTA}Disk${ENDCOLOR}     │ ${disk_usage}"
+	echo -e "\t│ 󰀄  ${RED}User${ENDCOLOR}     │ ${show_user}"
+	echo -e "\t│ 󰌽  ${YELLOW}Kernel${ENDCOLOR}   │ ${show_kernel}"
+	echo -e "\t│ 󰥔  ${GREEN}Uptime${ENDCOLOR}   │ ${show_uptime}"
+	echo -e "\t│ 󰃭  ${CYAN}Age${ENDCOLOR}      │ ${show_age} days"
+	echo -e "\t│ 󰘚  ${BLUE}Ram${ENDCOLOR}      │ ${show_ram_usage}"
+	echo -e "\t│ 󰋊  ${MAGENTA}Disk${ENDCOLOR}     │ ${show_disk_usage}"
 	echo -e "\t├─────────────┤"
-	echo -e "\t│ 󱄙  ${RED}Hostname${ENDCOLOR} │ ${HOSTNAME}"
-	echo -e "\t│ 󰖩  ${YELLOW}Internet${ENDCOLOR} │ ${online_status}"
-	echo -e "\t│ 󰈀  ${GREEN}Local IP${ENDCOLOR} │ ${local_ip}"
+	echo -e "\t│ 󱄙  ${RED}Hostname${ENDCOLOR} │ ${show_hostname}"
+	echo -e "\t│ 󰖩  ${YELLOW}Internet${ENDCOLOR} │ ${show_online_status}"
+	echo -e "\t│ 󰈀  ${GREEN}Local IP${ENDCOLOR} │ ${show_local_ip}"
 	echo -e "\t├─────────────┤"
 	echo -e "\t│ 󰏘  colors   │ ${WHITE} ${RED} ${YELLOW} ${GREEN} ${CYAN} ${BLUE} ${MAGENTA} ${BLACK} ${ENDCOLOR}"
 	echo -e "\t╰─────────────╯"
@@ -144,7 +138,7 @@ TEMPS() {
 
 case $1 in
 "-h" | "--help")
-	echo -e "usage:  $0 [...]"
+	echo -e "usage: $0 [...]"
 	echo -e "arguments:"
 	echo -e "    -h | --help"
 	echo -e "    -t | --temps"
