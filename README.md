@@ -1,8 +1,8 @@
 <p align="left">
     <!-- Discord Badge -->
-    <a href="https://discord.gg/https://discord.com/invite/E2Bp7GtcaA"><img src="https://img.shields.io/discord/1060607505186684978?logo=Discord&colorA=1e1e2e&colorB=a6e3a1&style=for-the-badge"></a>
+    <a href="https://discord.justus0405.com/"><img src="https://img.shields.io/discord/1370519315400495234?logo=Discord&colorA=1e1e2e&colorB=a6e3a1&style=for-the-badge"></a>
     <!-- Stars Badge -->
-	<a href="https://github.com/Justus0405/bfetch/stargazers"><img src="https://img.shields.io/github/stars/Justus0405/bfetch?colorA=1e1e2e&colorB=b7bdf8&style=for-the-badge"></a>
+    <a href="https://github.com/Justus0405/bfetch/stargazers"><img src="https://img.shields.io/github/stars/Justus0405/bfetch?colorA=1e1e2e&colorB=b7bdf8&style=for-the-badge"></a>
 </p>
 
 # bfetch
