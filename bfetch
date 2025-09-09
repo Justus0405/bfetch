@@ -6,108 +6,93 @@
 # Date: 11.07.2024
 # License: MIT
 
-# Color Variables
-black="\e[30m"
-red="\e[31m"
-green="\e[32m"
-yellow="\e[33m"
-blue="\e[34m"
-magenta="\e[35m"
-cyan="\e[36m"
-white="\e[97m"
-endColor="\e[0m"
+export scriptVersion="1.2"
 
-#########################
-# Input Handling
-#########################
-checkArgs() {
+### COLOR CODES ###
+export black="\e[1;30m"
+export red="\e[1;31m"
+export green="\e[1;32m"
+export yellow="\e[1;33m"
+export blue="\e[1;34m"
+export purple="\e[1;35m"
+export cyan="\e[1;36m"
+export white="\e[1;37m"
+export bold="\e[1m"
+export reset="\e[0m"
+
+### FUNCTIONS ###
+getArguments() {
 	case $1 in
 	"-s" | "--system")
-		system
+		printSystem
 		;;
 	"-t" | "--temps")
-		temps
+		printTemperatures
 		;;
 	"-h" | "--help")
-		showHelp
+		printHelp
+		;;
+	"-v" | "--version")
+		printVersion
 		;;
 	"")
-		system
+		printSystem
 		;;
 	*)
-		echo -e "Error: unrecognized option '$1'. Use $0 -h or --help"
+		echo -e "Error: Unrecognized option '$1'. Use $(basename "$0") help"
 		exit 1
 		;;
 	esac
 }
 
-#########################
-# Fetch Stuff
-#########################
-system() {
+### System Handling ###
+printSystem() {
 
-	#########################
-	# Operating System Info
-	#########################
-
-	showUser=$(whoami)
-	showHostname=$(cat /etc/hostname)
-	showKernel=$(uname -r)
-	showUptime=$(uptime -p | sed 's/up //')
+	### General System Info
+	export showUser=$(whoami)
+	export showHostname=$(cat /etc/hostname)
+	export showKernel=$(uname -r)
+	export showUptime=$(uptime -p | sed 's/up //')
 	# Reads the age of the file machine-id to determine the OS age
 	if [[ -f "/etc/machine-id" ]]; then
-		showAge=$((($(date +%s) - $(date -r "/etc/machine-id" +%s)) / 86400))
+		export showAge=$((($(date +%s) - $(date -r "/etc/machine-id" +%s)) / 86400))
 	else
-		showAge="Error: File not found"
+		export showAge="Error: File not found"
 	fi
 
-	#########################
-	# Usage Info
-	#########################
-
+	### Usage Info
 	# Show ram usage in mb, cut everything except line 2, calculate used percentage
-	showRamUsage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
+	export showRamUsage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
 
 	# Show total disk usage in gb, only use line total , print values
-	showDiskUsage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
+	export showDiskUsage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
 
-	#########################
-	# Network Info
-	#########################
-
+	### Network Info
 	# Tries to ping google dns server, if successful return Online, if not return Offline
-	showOnlineStatus=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${green}Online${endColor}"; else echo -e "${red}Offline${endColor}"; fi)
+	export showOnlineStatus=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${green}Online${reset}"; else echo -e "${red}Offline${reset}"; fi)
 
 	# Show every IPv4 adress, filter only for the numbers, remove loopback adress, show remaining adress
-	showLocalIp=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
-
-	#########################
-	# System Info Start
-	#########################
+	export showLocalIp=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
 
 	echo -e ""
 	echo -e "\t╭─────────────╮"
-	echo -e "\t│ 󰀄  ${red}User${endColor}     │ ${showUser}"
-	echo -e "\t│ 󰌽  ${yellow}Kernel${endColor}   │ ${showKernel}"
-	echo -e "\t│ 󰥔  ${green}Uptime${endColor}   │ ${showUptime}"
-	echo -e "\t│ 󰃭  ${cyan}Age${endColor}      │ ${showAge} days"
-	echo -e "\t│ 󰘚  ${blue}Ram${endColor}      │ ${showRamUsage}"
-	echo -e "\t│ 󰋊  ${magenta}Disk${endColor}     │ ${showDiskUsage}"
+	echo -e "\t│ 󰀄  ${red}User${reset}     │ ${showUser}"
+	echo -e "\t│ 󰌽  ${yellow}Kernel${reset}   │ ${showKernel}"
+	echo -e "\t│ 󰥔  ${green}Uptime${reset}   │ ${showUptime}"
+	echo -e "\t│ 󰃭  ${cyan}Age${reset}      │ ${showAge} days"
+	echo -e "\t│ 󰘚  ${blue}Ram${reset}      │ ${showRamUsage}"
+	echo -e "\t│ 󰋊  ${purple}Disk${reset}     │ ${showDiskUsage}"
 	echo -e "\t├─────────────┤"
-	echo -e "\t│ 󱄙  ${red}Hostname${endColor} │ ${showHostname}"
-	echo -e "\t│ 󰖩  ${yellow}Internet${endColor} │ ${showOnlineStatus}"
-	echo -e "\t│ 󰈀  ${green}Local IP${endColor} │ ${showLocalIp}"
+	echo -e "\t│ 󱄙  ${red}Hostname${reset} │ ${showHostname}"
+	echo -e "\t│ 󰖩  ${yellow}Internet${reset} │ ${showOnlineStatus}"
+	echo -e "\t│ 󰈀  ${green}Local IP${reset} │ ${showLocalIp}"
 	echo -e "\t├─────────────┤"
-	echo -e "\t│ 󰏘  colors   │ ${white} ${red} ${yellow} ${green} ${cyan} ${blue} ${magenta} ${black} ${endColor}"
+	echo -e "\t│ 󰏘  colors   │ ${white} ${red} ${yellow} ${green} ${cyan} ${blue} ${purple} ${black} ${reset}"
 	echo -e "\t╰─────────────╯"
 	echo -e ""
 }
 
-#########################
-# Temperature Stuff
-#########################
-
-# Function to find temperature file paths
+### Temperature Handling ###
 findTempPath() {
 	local potentialPaths=("$@")
 	for path in "${potentialPaths[@]}"; do
@@ -119,7 +104,7 @@ findTempPath() {
 	echo ""
 }
 
-temps() {
+printTemperatures() {
 	echo -e ""
 	echo -e "\t> Temperatures"
 	potentialPathsZone0=(
@@ -141,7 +126,7 @@ temps() {
 		if [[ ${temp0} =~ ^[0-9]+$ ]]; then
 			thermalZone0=$(cat /sys/class/thermal/thermal_zone0/type 2>/dev/null || echo "Zone 0")
 			thermalZone0Temp=$((temp0 / 1000))
-			echo -e "\t${red}${thermalZone0}${endColor}: ${cyan}${thermalZone0Temp}°C${endColor}"
+			echo -e "\t${red}${thermalZone0}${reset}: ${cyan}${thermalZone0Temp}°C${reset}"
 		fi
 	fi
 
@@ -150,30 +135,35 @@ temps() {
 		if [[ ${temp1} =~ ^[0-9]+$ ]]; then
 			thermalZone1=$(cat /sys/class/thermal/thermal_zone1/type 2>/dev/null || echo "Zone 1")
 			thermalZone1Temp=$((temp1 / 1000))
-			echo -e "\t${red}${thermalZone1}${endColor}: ${cyan}${thermalZone1Temp}°C${endColor}"
+			echo -e "\t${red}${thermalZone1}${reset}: ${cyan}${thermalZone1Temp}°C${reset}"
 		fi
 	fi
 
 	if [[ -z "${thermalZone0Path}" ]] && [[ -z "${thermalZone1Path}" ]]; then
-		echo -e "\t${red}Error:${endColor} No valid temperature sensor found"
+		echo -e "\t${red}Error:${reset} No valid temperature sensor found"
 		exit 1
 	fi
 
 	echo -e ""
 }
 
-showHelp() {
-	echo -e "usage: $0 [...]"
+printHelp() {
+	echo -e "usage: $(basename "$0") [...]"
 	echo -e "arguments:"
 	echo -e "    -s | --system"
 	echo -e "    -t | --temps"
 	echo -e "    -h | --help"
+	echo -e "    -v | --version"
 	echo -e ""
 	exit 0
 }
 
-#########################
-# Program Start
-#########################
+printVersion() {
+	echo -e "               $(basename "$0") v${scriptVersion} - GNU bash, version 5.3"
+	echo -e "               Copyright (C) 2025-present Justus0405"
+	echo -e ""
+	exit 0
+}
 
-checkArgs "$@"
+### PROGRAM START ###
+getArguments "$@"
