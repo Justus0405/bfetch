@@ -1,4 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Yet another fetch script in bash
+#
+# Author: Justus0405
+# Date: 11.07.2024
+# License: MIT
 
 # Color Variables
 black="\e[30m"
