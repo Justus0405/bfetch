@@ -49,30 +49,31 @@ getArguments() {
 printSystem() {
 
 	### General System Info
-	export showUser=$(whoami)
-	export showHostname=$(cat /etc/hostname)
-	export showKernel=$(uname -r)
-	export showUptime=$(uptime -p | sed 's/up //')
+	showUser=$(whoami)
+	showHostname=$(cat /etc/hostname)
+	showKernel=$(uname -r)
+	showUptime=$(uptime -p | sed 's/up //')
+
 	# Reads the age of the file machine-id to determine the OS age
 	if [[ -f "/etc/machine-id" ]]; then
-		export showAge=$((($(date +%s) - $(date -r "/etc/machine-id" +%s)) / 86400))
+		showAge=$((($(date +%s) - $(date -r "/etc/machine-id" +%s)) / 86400))
 	else
-		export showAge="Error: File not found"
+		showAge="Error: File not found"
 	fi
 
 	### Usage Info
 	# Show ram usage in mb, cut everything except line 2, calculate used percentage
-	export showRamUsage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
+	showRamUsage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
 
 	# Show total disk usage in gb, only use line total , print values
-	export showDiskUsage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
+	showDiskUsage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
 
 	### Network Info
 	# Tries to ping google dns server, if successful return Online, if not return Offline
-	export showOnlineStatus=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${green}Online${reset}"; else echo -e "${red}Offline${reset}"; fi)
+	showOnlineStatus=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${green}Online${reset}"; else echo -e "${red}Offline${reset}"; fi)
 
 	# Show every IPv4 adress, filter only for the numbers, remove loopback adress, show remaining adress
-	export showLocalIp=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
+	showLocalIp=$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1)
 
 	echo -e ""
 	echo -e "\t╭─────────────╮"
@@ -96,8 +97,8 @@ printSystem() {
 findTempPath() {
 	local potentialPaths=("$@")
 	for path in "${potentialPaths[@]}"; do
-		if [ -f "$path" ] && [ -s "$path" ]; then
-			echo "$path"
+		if [ -f "${path}" ] && [ -s "${path}" ]; then
+			echo "${path}"
 			return 0
 		fi
 	done
