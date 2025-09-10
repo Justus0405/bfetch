@@ -45,7 +45,7 @@ chmod +x bfetch
 4. Run the script:
 
 ```shell
-./diskcord bfetch
+./bfetch
 ```
 
 ## Usage
