@@ -153,7 +153,7 @@ printTemperatures() {
 	fi
 
 	if [[ -z "${thermalZone0Path}" ]] && [[ -z "${thermalZone1Path}" ]]; then
-		echo -e "\t${red}Error:${reset} No valid temperature sensor found"
+		echo -e "\t${red}ERROR:${reset} No valid temperature sensor found"
 		exit 1
 	fi
 
