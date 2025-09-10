@@ -16,13 +16,25 @@ export yellow="\e[1;33m"
 export blue="\e[1;34m"
 export purple="\e[1;35m"
 export cyan="\e[1;36m"
-export white="\e[1;37m"
+export lightGray="\e[1;37m"
+export gray="\e[1;90m"
+export lightRed="\e[1;91m"
+export lightGreen="\e[1;92m"
+export lightYellow="\e[1;93m"
+export lightBlue="\e[1;94m"
+export lightPurple="\e[1;95m"
+export lightCyan="\e[1;96m"
+export white="\e[1;97m"
 export bold="\e[1m"
+export faint="\e[2m"
+export italic="\e[3m"
+export underlined="\e[4m"
+export blinking="\e[5m"
 export reset="\e[0m"
 
 ### FUNCTIONS ###
 getArguments() {
-	case $1 in
+	case "$1" in
 	"-s" | "--system")
 		printSystem
 		;;
@@ -48,7 +60,7 @@ getArguments() {
 ### System Handling ###
 printSystem() {
 
-	### General System Info
+	### General System Info ###
 	showUser=$(whoami)
 	showHostname=$(cat /etc/hostname)
 	showKernel=$(uname -r)
@@ -61,14 +73,14 @@ printSystem() {
 		showAge="Error: File not found"
 	fi
 
-	### Usage Info
+	### Usage Info ###
 	# Show ram usage in mb, cut everything except line 2, calculate used percentage
 	showRamUsage=$(free -m | awk 'NR==2{used=$3; total=$2; printf "%dmb / %dmb (%.0f%%)", used, total, used/total*100}')
 
 	# Show total disk usage in gb, only use line total , print values
 	showDiskUsage=$(df -h --total | awk '/total/ {printf "%s / %s (%s)", $3, $2, $5}')
 
-	### Network Info
+	### Network Info ###
 	# Tries to ping google dns server, if successful return Online, if not return Offline
 	showOnlineStatus=$(if ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${green}Online${reset}"; else echo -e "${red}Offline${reset}"; fi)
 
@@ -151,10 +163,10 @@ printTemperatures() {
 printHelp() {
 	echo -e "usage: $(basename "$0") [...]"
 	echo -e "arguments:"
-	echo -e "    -s | --system"
-	echo -e "    -t | --temps"
-	echo -e "    -h | --help"
-	echo -e "    -v | --version"
+	echo -e "\t -s | --system"
+	echo -e "\t -t | --temps"
+	echo -e "\t -h | --help"
+	echo -e "\t -v | --version"
 	echo -e ""
 	exit 0
 }
