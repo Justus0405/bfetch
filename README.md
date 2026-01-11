@@ -27,7 +27,7 @@ Another System information script for Linux written in bash
 1. Clone the repository:
 
 ```shell
-git clone https://github.com/Justus0405/bfetch.git
+git clone --depth 1 https://github.com/Justus0405/bfetch.git
 ```
 
 2. Navigate to the directory:
